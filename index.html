@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.1/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.1/js/materialize.min.js"></script>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://www.google.com/jsapi"></script>
+    <script>
+        let category;
+        google.load('visualization', '1', { packages: ['geochart'] });
+        google.setOnLoadCallback(graphChart("イベント"));
+        function graphChart(category) {
+            var jsondata = fetchFallData(category).then(function (jsondata) {
+                var data = google.visualization.arrayToDataTable(jsondata);
+                var option = {
+                    region: 'JP',
+                    resolution: 'provinces',
+                    backgroundColor: '#81d4fa'
+                };
+                var graph = new google.visualization.GeoChart(document.getElementById('drawChart'));
+                graph.draw(data, option);
+                google.visualization.events.addListener(graph, 'select',
+                    function (e) {
+                        var selection = graph.getSelection();
+                        var prefecture = data.getValue(selection[0].row, 0);
+                        fetchPrefectureData(category, prefecture).then(function (jsondata) {
+                            $('#drawlist').empty();
+                            jsondata.forEach(function (element) {
+                                $('#drawlist').attr("class", "striped").append(
+                                    $("<tr>").append(
+                                        $("<td>").text(element.name)
+                                    ).append(
+                                        $("<td>").text(element.address)
+                                        )
+                                );
+                            }, this);
+                        });
+                    }
+                );
+            });
+        }
+
+        $(function () {
+            $('#month-select').change(function () {
+                category = $(this).val();
+                graphChart(category);
+            });
+        });
+        function fetchFallData(_category) {
+            return new Promise(function (resolve) {
+                fetch('./api?category=' + _category).then(function (response) {
+                    return response.json();
+                }).then(function (json) {
+                    resolve(json);
+                });
+            });
+        }
+        function fetchPrefectureData(_category, _prefecture) {
+            return new Promise(function (resolve) {
+                fetch('./api?category=' + _category + "&prefecture=" + _prefecture).then(function (response) {
+                    return response.json();
+                }).then(function (json) {
+                    resolve(json);
+                });
+            });
+        }
+    </script>
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="row center">
+            <h1>tourism DB</h1>
+            <h1>地域別の観光地マップ</h1>
+            <div class="row">
+                <div class="col s5"></div>
+                <div class="col s2">
+                    <label>カテゴリーの選択</label>
+                    <select id="month-select" style="display:inline;">
+                        <option value="イベント" selected >イベント</option>
+                        <option value="乗り物">乗り物</option>
+                        <option value="食べる">食べる</option>
+                        <option value="見る">見る</option>
+                        <option value="泊まる">泊まる</option>
+                        <option value="買う">買う</option>
+                        <option value="遊ぶ">遊ぶ</option>
+                        <option value="その他">その他</option>
+                    </select>
+                </div>
+                <div class="col s5"></div>
+            </div>
+            <div id="drawChart"></div>
+            <table id="drawlist">
+            </table>
+        </div>
+    </div>
+</body>
+
+
+</html>
