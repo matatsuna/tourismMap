@@ -12,7 +12,6 @@ $mysqli=new mysqli ("mysql","matatsuna","matatsuna");
 $mysqli -> select_db("tourism_db");
 $mysqli -> set_charset("utf8");
 if(!$_REQUEST["prefecture"]){
-
 $results=$mysqli->query("select prefecture,name,count(name) from tourism_db where category ='".$category."' group by prefecture");
 $json = array();
 $jsonchild = array();
@@ -34,12 +33,9 @@ echo json_encode($json);
 $prefecture =htmlspecialchars($_REQUEST["prefecture"]);
 $results=$mysqli->query("select name,city,address from tourism_db where category ='".$category."' and prefecture LIKE '".$prefecture."%'");
 $json = array();
-
+array_push($json,array("住所","名称"));
 while ($line = $results-> fetch_array(MYSQLI_BOTH)) {
-    $jsonchild = array();
-    $jsonchild["name"] = $line["name"];
-    $jsonchild["address"] = $line["city"].$line["address"];
-    array_push($json,$jsonchild);
+    array_push($json,array($line["city"].$line["address"],$line["name"]));
 }
 echo json_encode($json);
     
