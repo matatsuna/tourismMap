@@ -11,7 +11,7 @@ if($_REQUEST["category"]){
 $mysqli=new mysqli ("mysql","matatsuna","matatsuna");
 $mysqli -> select_db("tourism_db");
 $mysqli -> set_charset("utf8");
-if(!$_REQUEST["prefecture"]){
+if($_REQUEST["prefecture"]){
 $results=$mysqli->query("select prefecture,name,count(name) from tourism_db where category ='".$category."' group by prefecture");
 $json = array();
 $jsonchild = array();
