@@ -8,8 +8,8 @@ if($_REQUEST["category"]){
     $category = "イベント";
 }
 
-$mysqli=new mysqli ("localhost","UserName","Pass");
-$mysqli -> select_db("hoge_db");
+$mysqli=new mysqli ("mysql","matatsuna","matatsuna");
+$mysqli -> select_db("tourism_db");
 $mysqli -> set_charset("utf8");
 if(!$_REQUEST["prefecture"]){
 
